@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../../Stage PFE/Projet/docs"
+		},
+		{
+			"path": "../../../../Stage PFE/Projet/.venv"
+		},
+		{
+			"path": "../../../../Stage PFE/Projet/app"
+		}
+	],
+	"settings": {}
+}

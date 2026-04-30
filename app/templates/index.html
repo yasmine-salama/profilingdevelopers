@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - DevIntel{% endblock %}
+{% block breadcrumb %}Accueil{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">Bienvenue sur DevIntel</h1>
+    <p class="page-subtitle">Analysez les profils GitHub pour identifier les meilleurs talents techniques.</p>
+</div>
+
+<div class="card mb-4">
+    <h2 class="mb-4">🔍 Recherche de Talents</h2>
+    <form action="{{ url_for('main.search_github') }}" method="get">
+        <div class="form-group">
+            <label class="form-label">Mots-clés, technologies ou nom d'utilisateur</label>
+            <div class="flex gap-2">
+                <input type="text" name="q" class="input-control" placeholder="Ex: Python, React, Remote, @octocat..." required>
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% if results %}
+    <div class="flex justify-between items-center mb-4">
+        <h2>Résultats GitHub ({{ results|length }})</h2>
+        <form action="{{ url_for('main.import_github_batch') }}" method="post" id="import-batch-form">
+            <input type="hidden" name="q" value="{{ query }}">
+            <div id="selected-usernames-container"></div>
+            <button type="submit" class="btn btn-secondary" id="import-btn" disabled>Importer la sélection</button>
+        </form>
+    </div>
+
+    <div class="search-results-grid">
+        {% for user in results %}
+        <div class="card search-card">
+            <div class="flex items-center gap-4 mb-4">
+                <img src="{{ user.avatar_url }}" alt="{{ user.login }}" class="profile-avatar">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.1rem;">{{ user.login }}</h3>
+                    <div class="flex gap-2">
+                        <a href="{{ user.html_url }}" target="_blank" class="text-muted" style="font-size: 0.8rem; text-decoration: none;">GitHub ↗</a>
+                        <a href="{{ url_for('main.smart_profile_github', username=user.login) }}" class="text-muted" style="font-size: 0.8rem; text-decoration: none; color: var(--primary);">Smart Profile</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex-1">
+                {% if user.bio %}
+                    <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 1rem;">{{ user.bio|truncate(80) }}</p>
+                {% endif %}
+                
+                <div class="flex gap-2 mb-4">
+                    {% if user.location %}
+                        <span class="badge badge-indigo">📍 {{ user.location }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <label class="flex items-center gap-2 mt-auto" style="cursor: pointer; padding-top: 1rem; border-top: 1px solid var(--border);">
+                <input type="checkbox" name="usernames" value="{{ user.login }}" class="user-checkbox">
+                <span style="font-weight: 600; font-size: 0.9rem;">Sélectionner pour analyse</span>
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+        const importBtn = document.getElementById('import-btn');
+        const container = document.getElementById('selected-usernames-container');
+
+        function updateSelection() {
+            const selected = Array.from(checkboxes).filter(cb => cb.checked);
+            importBtn.disabled = selected.length === 0;
+            importBtn.textContent = selected.length > 0 ? `Importer ${selected.length} profil(s)` : 'Importer la sélection';
+            
+            container.innerHTML = '';
+            selected.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'github_usernames';
+                input.value = cb.value;
+                container.appendChild(input);
+            });
+        }
+
+        checkboxes.forEach(cb => cb.addEventListener('change', updateSelection));
+    </script>
+{% endif %}
+
+<div class="dashboard-grid mt-6">
+    <div class="card">
+        <h3>🚀 Pourquoi DevIntel ?</h3>
+        <p class="text-muted">Notre plateforme utilise l'API GitHub pour extraire des métriques avancées et calculer un score d'activité précis, vous aidant à identifier les contributeurs les plus actifs.</p>
+    </div>
+    <div class="card">
+        <h3>⚙️ Comment ça marche ?</h3>
+        <p class="text-muted">Recherchez des profils, importez-les dans votre base locale, et laissez notre algorithme analyser leurs compétences, leurs dépôts et leur historique de commits.</p>
+    </div>
+</div>
+{% endblock %}

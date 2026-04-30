@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - DevIntel{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">Profils Analysés</h1>
+    <p class="page-subtitle">Visualisez et comparez les profils de développeurs enregistrés dans votre base locale.</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="card stat-card">
+        <span class="stat-label">Total Profils</span>
+        <span class="stat-value">{{ profiles|length }}</span>
+    </div>
+    <div class="card stat-card">
+        <span class="stat-label">Moyenne Score</span>
+        {% if profiles %}
+            {% set total_score = namespace(value=0) %}
+            {% for p in profiles %}{% set total_score.value = total_score.value + p.activity_score %}{% endfor %}
+            <span class="stat-value">{{ (total_score.value / profiles|length)|round(1) }}</span>
+        {% else %}
+            <span class="stat-value">0</span>
+        {% endif %}
+    </div>
+    <div class="card stat-card">
+        <span class="stat-label">Top Localisation</span>
+        {% if profiles %}
+            {% set loc_counts = {} %}
+            {% for p in profiles %}
+                {% if p.location %}
+                    {% if p.location in loc_counts %}
+                        {% do loc_counts.update({p.location: loc_counts[p.location] + 1}) %}
+                    {% else %}
+                        {% do loc_counts.update({p.location: 1}) %}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            
+            {% set top_loc = namespace(name='N/A', count=0) %}
+            {% for loc, count in loc_counts.items() %}
+                {% if count > top_loc.count %}
+                    {% set top_loc.name = loc %}
+                    {% set top_loc.count = count %}
+                {% endif %}
+            {% endfor %}
+            <span class="stat-value">{{ top_loc.name }}</span>
+        {% else %}
+            <span class="stat-value">N/A</span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filters Card -->
+<div class="card mb-4">
+    <form action="{{ url_for('main.dashboard') }}" method="get" class="flex flex-wrap gap-4 items-end">
+        <input type="hidden" name="q" value="{{ search_filters.query }}">
+        
+        <div style="flex: 1; min-width: 200px;">
+            <label class="form-label">Username</label>
+            <input type="text" name="db_username" value="{{ db_filters.username }}" class="input-control" placeholder="Rechercher...">
+        </div>
+        
+        <div style="flex: 1; min-width: 200px;">
+            <label class="form-label">Localisation</label>
+            <input type="text" name="db_location" value="{{ db_filters.location }}" class="input-control" placeholder="Lieu...">
+        </div>
+        
+        <div style="flex: 1; min-width: 200px;">
+            <label class="form-label">Technologie</label>
+            <input type="text" name="db_skill" value="{{ db_filters.skill }}" class="input-control" placeholder="Ex: Python...">
+        </div>
+
+        <div class="flex gap-2">
+            <button type="submit" class="btn btn-primary">Filtrer</button>
+            <a href="{{ url_for('main.export_csv', **request.args) }}" class="btn btn-secondary" title="Exporter en CSV">
+                <span>📥</span> CSV
+            </a>
+            {% if db_filters.username or db_filters.location or db_filters.skill %}
+                <a href="{{ url_for('main.dashboard', q=search_filters.query) }}" class="btn btn-secondary">Réinitialiser</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Table Actions -->
+<div class="flex justify-between items-center mb-4">
+    <div class="flex gap-4 items-center">
+        <form action="{{ url_for('main.compare_profiles') }}" method="post" id="compare-form">
+            <div id="compare-ids-container"></div>
+            <button type="submit" class="btn btn-primary" id="compare-btn" disabled>
+                <span>⚖️</span> Comparer la sélection
+            </button>
+        </form>
+        <span class="text-muted" id="selection-count" style="font-size: 0.9rem;">Aucun profil sélectionné</span>
+    </div>
+</div>
+
+<!-- Profiles Table -->
+<div class="card" style="padding: 0;">
+    <div class="table-container">
+        <table id="profiles-table">
+            <thead>
+                <tr>
+                    <th style="width: 40px;"><input type="checkbox" id="select-all"></th>
+                    <th>Développeur</th>
+                    <th>Localisation</th>
+                    <th>Repos</th>
+                    <th>Commits</th>
+                    <th>Stars</th>
+                    <th>Score</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in profiles %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="developer_ids" value="{{ profile.id }}" class="compare-checkbox">
+                    </td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <strong style="color: var(--primary);">{{ profile.username }}</strong>
+                        </div>
+                    </td>
+                    <td>{{ profile.location or 'Non spécifié' }}</td>
+                    <td><span class="badge badge-indigo">{{ profile.repositories }}</span></td>
+                    <td>{{ profile.commits }}</td>
+                    <td>{{ profile.stars }}</td>
+                    <td>
+                        <div style="font-weight: 700; color: {{ 'var(--success)' if profile.activity_score > 50 else 'var(--text-main)' }}">
+                            {{ profile.activity_score }}
+                        </div>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('main.smart_profile_developer', developer_id=profile.id) }}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8rem;">Détails</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const compareCheckboxes = document.querySelectorAll('.compare-checkbox');
+    const selectAll = document.getElementById('select-all');
+    const compareBtn = document.getElementById('compare-btn');
+    const compareForm = document.getElementById('compare-form');
+    const compareIdsContainer = document.getElementById('compare-ids-container');
+    const selectionCount = document.getElementById('selection-count');
+
+    function updateComparisonState() {
+        const selected = Array.from(compareCheckboxes).filter(cb => cb.checked);
+        const count = selected.length;
+        
+        compareBtn.disabled = count < 2;
+        selectionCount.textContent = count === 0 ? 'Aucun profil sélectionné' : 
+                                   count === 1 ? '1 profil sélectionné (sélectionnez-en un autre pour comparer)' :
+                                   `${count} profils sélectionnés`;
+        
+        // Update hidden inputs for form
+        compareIdsContainer.innerHTML = '';
+        selected.forEach(cb => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'developer_ids';
+            input.value = cb.value;
+            compareIdsContainer.appendChild(input);
+        });
+    }
+
+    selectAll.addEventListener('change', () => {
+        compareCheckboxes.forEach(cb => cb.checked = selectAll.checked);
+        updateComparisonState();
+    });
+
+    compareCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateComparisonState);
+    });
+</script>
+{% endblock %}

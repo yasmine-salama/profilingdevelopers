@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Profiling - {{ smart_profile.candidate.display_name }}{% endblock %}
+{% block breadcrumb %}Dashboard / Profile / {{ smart_profile.candidate.username }}{% endblock %}
+
+{% block content %}
+{% set candidate = smart_profile.candidate %}
+{% set job_match = smart_profile.job_match %}
+
+<div class="mb-4">
+    <div class="flex justify-between items-start">
+        <div class="flex gap-6 items-center">
+            {% if candidate.avatar_url %}
+                <img src="{{ candidate.avatar_url }}" alt="{{ candidate.username }}" class="profile-avatar" style="width: 80px; height: 80px;">
+            {% endif %}
+            <div>
+                <h1 class="page-title" style="margin: 0;">{{ candidate.display_name }}</h1>
+                <p class="page-subtitle" style="margin: 0;">@{{ candidate.username }} · {{ candidate.seniority }}</p>
+                <div class="flex gap-2 mt-2">
+                    <span class="badge badge-indigo">📍 {{ candidate.location or "Lieu inconnu" }}</span>
+                    <span class="badge badge-green">{{ candidate.source }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            {% if candidate.profile_url %}
+                <a href="{{ candidate.profile_url }}" target="_blank" class="btn btn-secondary">Voir sur {{ candidate.source }} ↗</a>
+            {% endif %}
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Retour Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="card stat-card">
+        <span class="stat-label">Smart Score</span>
+        <span class="stat-value" style="color: var(--primary);">{{ candidate.smart_score }}/100</span>
+    </div>
+    <div class="card stat-card">
+        <span class="stat-label">Repositories</span>
+        <span class="stat-value">{{ candidate.repositories }}</span>
+    </div>
+    <div class="card stat-card">
+        <span class="stat-label">Commits</span>
+        <span class="stat-value">{{ candidate.commits }}</span>
+    </div>
+    <div class="card stat-card">
+        <span class="stat-label">Stars</span>
+        <span class="stat-value">{{ candidate.stars }}</span>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Bio & Skills -->
+    <div class="card">
+        <h3>📝 Résumé du Profil</h3>
+        <p class="text-muted mb-4">{{ candidate.summary }}</p>
+        
+        <h3>🛠️ Compétences Détectées</h3>
+        <div class="flex flex-wrap gap-2 mt-2">
+            {% for skill in candidate.skills %}
+                <span class="badge badge-indigo">{{ skill }}</span>
+            {% endfor %}
+        </div>
+
+        <h3 class="mt-6">🎯 Rôles Recommandés</h3>
+        <div class="flex flex-wrap gap-2 mt-2">
+            {% for role in candidate.recommended_roles %}
+                <span class="badge badge-green">{{ role }}</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Job Matching -->
+    <div class="card">
+        <h3>🤝 Job Matching</h3>
+        <p class="text-muted mb-4">Analysez l'adéquation avec une fiche de poste.</p>
+        
+        <form method="post" class="form-group">
+            <textarea
+                name="job_description"
+                rows="5"
+                class="input-control mb-4"
+                placeholder="Collez ici une fiche de poste..."
+            >{{ job_match.job_description }}</textarea>
+            <button type="submit" class="btn btn-primary w-full" style="width: 100%;">Analyser le matching</button>
+        </form>
+
+        {% if job_match.score is not none %}
+            <div class="alert alert-success mt-4">
+                <strong>Score de matching: {{ job_match.score }}/100</strong>
+            </div>
+            <p class="text-muted mt-2" style="font-size: 0.9rem;">{{ job_match.recommendation }}</p>
+            
+            {% if job_match.matched_keywords %}
+                <p class="mt-4" style="font-size: 0.85rem;"><strong>Points forts:</strong> {{ job_match.matched_keywords|join(", ") }}</p>
+            {% endif %}
+            
+            {% if job_match.missing_keywords %}
+                <p style="font-size: 0.85rem;"><strong>Manquants:</strong> {{ job_match.missing_keywords|join(", ") }}</p>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Strengths & Focus -->
+    <div class="card">
+        <h3>✅ Points Forts</h3>
+        <ul style="padding-left: 1.5rem; margin-top: 1rem; color: var(--text-muted);">
+            {% for item in candidate.strengths %}
+                <li class="mb-2">{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card">
+        <h3>⚠️ Axes d'Amélioration</h3>
+        <ul style="padding-left: 1.5rem; margin-top: 1rem; color: var(--text-muted);">
+            {% for item in candidate.focus_areas %}
+                <li class="mb-2">{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <h3>📊 Détail du Score</h3>
+    <div class="table-container mt-4">
+        <table>
+            <thead>
+                <tr>
+                    <th>Signal d'Analyse</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for label, value in candidate.score_breakdown.items() %}
+                    <tr>
+                        <td>{{ label.replace("_", " ").title() }}</td>
+                        <td>
+                            <div class="flex items-center gap-4">
+                                <div style="flex: 1; height: 8px; background: var(--bg-main); border-radius: 4px; overflow: hidden;">
+                                    <div style="height: 100%; width: {{ value }}%; background: var(--primary);"></div>
+                                </div>
+                                <span style="font-weight: 600; min-width: 30px;">{{ value }}</span>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

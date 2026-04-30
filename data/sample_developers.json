@@ -1,0 +1,90 @@
+[
+  {
+    "username": "amina-dev",
+    "source": "github",
+    "profile_url": "https://example.com/amina-dev",
+    "bio": "Developpeuse data et backend Python.",
+    "location": "Casablanca",
+    "repositories": 24,
+    "commits": 350,
+    "stars": 42,
+    "skills": ["Python", "Flask", "Pandas", "SQL", "Plotly"]
+  },
+  {
+    "username": "youssef-js",
+    "source": "github",
+    "profile_url": "https://example.com/youssef-js",
+    "bio": "Developpeur frontend et full stack.",
+    "location": "Rabat",
+    "repositories": 31,
+    "commits": 520,
+    "stars": 65,
+    "skills": ["JavaScript", "HTML", "CSS", "React", "Node.js"]
+  },
+  {
+    "username": "salma-ai",
+    "source": "kaggle",
+    "profile_url": "https://example.com/salma-ai",
+    "bio": "Profil oriente machine learning et visualisation.",
+    "location": "Marrakech",
+    "repositories": 18,
+    "commits": 280,
+    "stars": 51,
+    "skills": ["Python", "Scikit-learn", "Pandas", "NumPy", "Matplotlib"]
+  },
+  {
+    "username": "mehdi-cloud",
+    "source": "github",
+    "profile_url": "https://example.com/mehdi-cloud",
+    "bio": "Developpeur DevOps et cloud.",
+    "location": "Tanger",
+    "repositories": 27,
+    "commits": 470,
+    "stars": 70,
+    "skills": ["Docker", "Kubernetes", "Python", "CI/CD", "SQL"]
+  },
+  {
+    "username": "nora-data",
+    "source": "gitlab",
+    "profile_url": "https://example.com/nora-data",
+    "bio": "Ingenieure data orientee ETL.",
+    "location": "Fes",
+    "repositories": 22,
+    "commits": 390,
+    "stars": 36,
+    "skills": ["Python", "Pandas", "SQL", "Airflow", "Flask"]
+  },
+  {
+    "username": "hamza-mobile",
+    "source": "github",
+    "profile_url": "https://example.com/hamza-mobile",
+    "bio": "Developpeur mobile multi plateforme.",
+    "location": "Agadir",
+    "repositories": 16,
+    "commits": 240,
+    "stars": 29,
+    "skills": ["Flutter", "Dart", "Firebase", "REST", "Python"]
+  },
+  {
+    "username": "iman-sec",
+    "source": "gitlab",
+    "profile_url": "https://example.com/iman-sec",
+    "bio": "Developpeuse securite et automatisation.",
+    "location": "Kenitra",
+    "repositories": 20,
+    "commits": 310,
+    "stars": 40,
+    "skills": ["Python", "Linux", "Bash", "Docker", "SQL"]
+  },
+  {
+    "username": "zakaria-bi",
+    "source": "github",
+    "profile_url": "https://example.com/zakaria-bi",
+    "bio": "Analyse de donnees et reporting interactif.",
+    "location": "Oujda",
+    "repositories": 19,
+    "commits": 330,
+    "stars": 33,
+    "skills": ["Python", "Power BI", "Plotly", "Pandas", "SQL"]
+  }
+]

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Comparaison - DevIntel{% endblock %}
+{% block breadcrumb %}Dashboard / Comparaison{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="page-title">Comparaison de Profils</h1>
+            <p class="page-subtitle">Analyse comparative des performances et compétences.</p>
+        </div>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Retour au Dashboard</a>
+    </div>
+</div>
+
+<div class="card" style="padding: 0; overflow-x: auto;">
+    <table style="min-width: 800px;">
+        <thead>
+            <tr>
+                <th style="width: 200px;">Critères</th>
+                {% for profile in profiles %}
+                <th style="text-align: center; background-color: var(--primary-soft);">
+                    <div style="font-size: 1.1rem; color: var(--primary);">{{ profile.username }}</div>
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Score d'activité</strong></td>
+                {% for profile in profiles %}
+                <td style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">
+                        {{ profile.activity_score }}
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Localisation</strong></td>
+                {% for profile in profiles %}
+                <td style="text-align: center;">{{ profile.location or 'N/A' }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Dépôts Publics</strong></td>
+                {% for profile in profiles %}
+                <td style="text-align: center;">
+                    <span class="badge badge-indigo">{{ profile.repositories }}</span>
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Total Commits</strong></td>
+                {% for profile in profiles %}
+                <td style="text-align: center;">{{ profile.commits }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Total Stars</strong></td>
+                {% for profile in profiles %}
+                <td style="text-align: center;">{{ profile.stars }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Technologies</strong></td>
+                {% for profile in profiles %}
+                <td style="text-align: center;">
+                    <div class="flex flex-wrap justify-center gap-2">
+                        {% for skill in profile.skills %}
+                        <span class="badge badge-green">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Profil GitHub</strong></td>
+                {% for profile in profiles %}
+                <td style="text-align: center;">
+                    <a href="{{ profile.profile_url }}" target="_blank" class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 12px;">Voir ↗</a>
+                </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-6 card">
+    <h3>💡 Analyse de l'expert</h3>
+    <p class="text-muted">
+        Cette comparaison met en évidence les forces relatives de chaque candidat. 
+        Le score d'activité est pondéré par le volume de commits et l'impact (stars) au cours de l'année écoulée.
+    </p>
+</div>
+{% endblock %}
