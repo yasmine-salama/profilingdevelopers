@@ -14,4 +14,4 @@ class Config:
     SAMPLE_DATA_PATH = SAMPLE_DATA_PATH
     GITHUB_API_BASE_URL = "https://api.github.com"
     GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
-    REQUEST_TIMEOUT = 14
+    REQUEST_TIMEOUT = 15
